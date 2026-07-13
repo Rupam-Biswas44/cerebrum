@@ -6,9 +6,9 @@
 
 *Describe your goal. Cerebrum handles the rest.*
 
-[![CI](https://github.com/yourusername/cerebrum/actions/workflows/ci.yml/badge.svg)](https://github.com/yourusername/cerebrum/actions/workflows/ci.yml)
-[![CD](https://github.com/yourusername/cerebrum/actions/workflows/cd.yml/badge.svg)](https://github.com/yourusername/cerebrum/actions/workflows/cd.yml)
-[![Coverage](https://img.shields.io/badge/coverage-80%25-brightgreen)](https://github.com/yourusername/cerebrum)
+[![CI](https://github.com/Rupam-Biswas44/cerebrum/actions/workflows/ci.yml/badge.svg)](https://github.com/Rupam-Biswas44/cerebrum/actions/workflows/ci.yml)
+[![CD](https://github.com/Rupam-Biswas44/cerebrum/actions/workflows/cd.yml/badge.svg)](https://github.com/Rupam-Biswas44/cerebrum/actions/workflows/cd.yml)
+[![Coverage](https://img.shields.io/badge/coverage-80%25-brightgreen)](https://github.com/Rupam-Biswas44/cerebrum)
 [![Python](https://img.shields.io/badge/Python-3.13-blue?logo=python)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi)](https://fastapi.tiangolo.com)
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=nextdotjs)](https://nextjs.org)
@@ -132,7 +132,7 @@ Cerebrum is a **production-grade, open-source enterprise AI platform** that auto
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/cerebrum.git
+git clone https://github.com/Rupam-Biswas44/cerebrum.git
 cd cerebrum
 
 # Copy environment variables

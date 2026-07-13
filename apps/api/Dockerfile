@@ -7,7 +7,7 @@ FROM python:3.13-slim AS base
 
 LABEL maintainer="Rupam Biswas <rupam@cerebrum.ai>"
 LABEL org.opencontainers.image.title="Cerebrum API"
-LABEL org.opencontainers.image.source="https://github.com/yourusername/cerebrum"
+LABEL org.opencontainers.image.source="https://github.com/Rupam-Biswas44/cerebrum"
 LABEL org.opencontainers.image.licenses="MIT"
 
 # Security: run as non-root user
