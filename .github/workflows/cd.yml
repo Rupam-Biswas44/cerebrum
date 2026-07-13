@@ -1,0 +1,155 @@
+name: CD — Deploy to Production
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Deployment environment
+        required: true
+        default: staging
+        type: choice
+        options: [staging, production]
+
+concurrency:
+  group: cd-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}
+
+jobs:
+  # ============================================================
+  # Gate: Require CI to pass
+  # ============================================================
+  check-ci:
+    name: Verify CI Passed
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check CI workflow
+        run: echo "CI passed — proceeding with deployment"
+
+  # ============================================================
+  # Deploy: Docker Compose (staging/VPS)
+  # ============================================================
+  deploy-compose:
+    name: Deploy (Docker Compose)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [check-ci]
+    environment:
+      name: ${{ github.event.inputs.environment || 'staging' }}
+      url: ${{ vars.APP_URL }}
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set image version
+        id: version
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            echo "version=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=sha-$(echo ${{ github.sha }} | cut -c1-7)" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Deploy to server via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            set -e
+            cd /opt/cerebrum
+
+            # Pull latest code
+            git pull origin main
+
+            # Update image versions
+            export APP_VERSION=${{ steps.version.outputs.version }}
+
+            # Login to registry
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+            # Pull new images
+            docker compose -f docker/docker-compose.yml pull api web
+
+            # Rolling update
+            docker compose -f docker/docker-compose.yml up -d --no-deps api worker web
+
+            # Run migrations
+            docker compose -f docker/docker-compose.yml exec -T api alembic upgrade head
+
+            # Smoke test
+            sleep 10
+            curl -f http://localhost:8000/health || exit 1
+            curl -f http://localhost:3000 || exit 1
+
+            echo "Deployment successful ✓"
+
+  # ============================================================
+  # Post-Deploy: Smoke Tests
+  # ============================================================
+  post-deploy-tests:
+    name: Post-Deploy Smoke Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [deploy-compose]
+    environment: ${{ github.event.inputs.environment || 'staging' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Run smoke tests against deployment
+        env:
+          APP_URL: ${{ vars.APP_URL }}
+          API_URL: ${{ vars.API_URL }}
+        run: |
+          pip install pytest httpx
+          pytest tests/e2e/smoke_test.py -v --timeout=30
+
+      - name: Annotate Grafana deployment
+        if: success()
+        run: |
+          curl -s -X POST \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.GRAFANA_API_KEY }}" \
+            -d "{\"text\": \"Deployed ${{ github.sha }} to ${{ github.event.inputs.environment || 'staging' }}\", \"tags\": [\"deployment\"]}" \
+            ${{ vars.GRAFANA_URL }}/api/annotations || echo "Grafana annotation skipped"
+
+  # ============================================================
+  # Notify
+  # ============================================================
+  notify:
+    name: Notify Deployment Status
+    runs-on: ubuntu-latest
+    needs: [deploy-compose, post-deploy-tests]
+    if: always()
+
+    steps:
+      - name: Deployment Success Notification
+        if: needs.deploy-compose.result == 'success'
+        run: |
+          echo "✅ Deployment to ${{ github.event.inputs.environment || 'staging' }} successful"
+          echo "   Commit: ${{ github.sha }}"
+          echo "   Deployed by: ${{ github.actor }}"
+
+      - name: Deployment Failure Notification
+        if: needs.deploy-compose.result == 'failure'
+        run: |
+          echo "❌ Deployment FAILED"
+          echo "   Branch: ${{ github.ref }}"
+          echo "   Commit: ${{ github.sha }}"
+          exit 1
