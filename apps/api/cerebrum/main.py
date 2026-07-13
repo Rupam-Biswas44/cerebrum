@@ -34,11 +34,11 @@ from cerebrum.routers import (
     visualizations,
     reports,
     health,
-    metrics,
 )
 from cerebrum.middleware.rate_limit import RateLimitMiddleware
 from cerebrum.middleware.request_id import RequestIDMiddleware
 from cerebrum.middleware.audit import AuditLogMiddleware
+from cerebrum.exceptions import configure_exception_handlers
 
 logger = structlog.get_logger(__name__)
 settings = get_settings()
@@ -108,6 +108,9 @@ def create_application() -> FastAPI:
 
     # ── Middleware (order matters: outermost first) ────────────────────────
     _configure_middleware(app)
+
+    # ── Exceptions ────────────────────────────────────────────────────────
+    configure_exception_handlers(app)
 
     # ── Routers ───────────────────────────────────────────────────────────
     _configure_routers(app)
