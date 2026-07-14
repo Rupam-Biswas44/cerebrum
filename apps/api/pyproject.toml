@@ -58,6 +58,12 @@ dependencies = [
     "shap>=0.46.0",
     "prophet>=1.1.0",
 
+    # Visualization
+    "plotly>=5.24.0",
+    "matplotlib>=3.9.0",
+    "seaborn>=0.13.0",
+    "kaleido>=0.2.1",
+
     # LLM / AI
     "langchain>=0.3.0",
     "langgraph>=0.2.0",

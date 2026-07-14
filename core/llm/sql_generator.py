@@ -58,7 +58,12 @@ async def generate_sql_from_nl(
     ]
 
     try:
-        response: SQLGenerationResponse = await structured_llm.ainvoke(messages)
+        raw_response = await structured_llm.ainvoke(messages)
+        # LangChain may return a dict if pydantic binding isn't perfect
+        if isinstance(raw_response, dict):
+            response = SQLGenerationResponse(**raw_response)
+        else:
+            response = raw_response
 
         # Additional safety check: ensure the query is a SELECT
         cleaned_query = response.query.strip().upper()

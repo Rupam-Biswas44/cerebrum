@@ -98,7 +98,7 @@ class StatisticianAgent(BaseAgent):
 
         except Exception as e:
             self._log.warning("statistician.sql.failed", error=str(e))
-            sql_results = {"error": str(e)}
+            sql_results = [{"error": str(e)}]
 
         # Step 4: Final LLM synthesis
         llm = ChatOpenAI(
