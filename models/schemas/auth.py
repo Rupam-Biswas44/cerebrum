@@ -4,14 +4,13 @@ Auth Schemas
 Pydantic models for authentication requests and responses.
 """
 
-from typing import Any
 from pydantic import BaseModel, EmailStr
 
 
 class Token(BaseModel):
     access_token: str
     refresh_token: str
-    token_type: str = "bearer"
+    token_type: str = "bearer"  # noqa: S105
 
 
 class TokenPayload(BaseModel):

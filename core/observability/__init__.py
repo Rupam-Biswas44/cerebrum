@@ -12,7 +12,7 @@ from typing import Any
 import structlog
 from opentelemetry import trace
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
-from opentelemetry.sdk.resources import Resource, SERVICE_NAME
+from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
@@ -53,7 +53,9 @@ def configure_logging(log_level: str = "INFO", log_format: str = "json") -> None
     )
 
 
-def _add_opentelemetry_trace_info(logger: Any, method_name: str, event_dict: dict[str, Any]) -> dict[str, Any]:
+def _add_opentelemetry_trace_info(
+    logger: Any, method_name: str, event_dict: dict[str, Any]
+) -> dict[str, Any]:
     """Structlog processor to attach OTel trace IDs to logs."""
     span = trace.get_current_span()
     if span.is_recording():
@@ -69,15 +71,15 @@ def configure_telemetry(service_name: str) -> None:
     """
     resource = Resource.create(attributes={SERVICE_NAME: service_name})
     provider = TracerProvider(resource=resource)
-    
+
     # OTLP Exporter (gRPC) - points to Tempo
     otlp_exporter = OTLPSpanExporter(
         endpoint=settings.OTEL_EXPORTER_OTLP_ENDPOINT,
         insecure=True,  # Internal network
     )
-    
+
     # Use BatchSpanProcessor for async non-blocking exports
     processor = BatchSpanProcessor(otlp_exporter)
     provider.add_span_processor(processor)
-    
+
     trace.set_tracer_provider(provider)

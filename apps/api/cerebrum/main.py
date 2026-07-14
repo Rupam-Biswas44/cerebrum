@@ -8,6 +8,7 @@ routers, event handlers, and observability configured.
 from __future__ import annotations
 
 import time
+import typing
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
@@ -20,25 +21,25 @@ from fastapi.responses import ORJSONResponse
 from prometheus_fastapi_instrumentator import Instrumentator
 
 from cerebrum.config import get_settings
+from cerebrum.core.cache import close_redis_pool, create_redis_pool
 from cerebrum.core.database import create_db_pool, dispose_db_pool
-from cerebrum.core.cache import create_redis_pool, close_redis_pool
-from cerebrum.core.observability import configure_telemetry, configure_logging
-from cerebrum.routers import (
-    auth,
-    users,
-    projects,
-    datasets,
-    agents,
-    tasks,
-    ml,
-    visualizations,
-    reports,
-    health,
-)
+from cerebrum.core.observability import configure_logging, configure_telemetry
+from cerebrum.exceptions import configure_exception_handlers
+from cerebrum.middleware.audit import AuditLogMiddleware
 from cerebrum.middleware.rate_limit import RateLimitMiddleware
 from cerebrum.middleware.request_id import RequestIDMiddleware
-from cerebrum.middleware.audit import AuditLogMiddleware
-from cerebrum.exceptions import configure_exception_handlers
+from cerebrum.routers import (
+    agents,
+    auth,
+    datasets,
+    health,
+    ml,
+    projects,
+    reports,
+    tasks,
+    users,
+    visualizations,
+)
 
 logger = structlog.get_logger(__name__)
 settings = get_settings()
@@ -162,7 +163,7 @@ def _configure_middleware(app: FastAPI) -> None:
 
     # Request timing
     @app.middleware("http")
-    async def add_process_time_header(request: Request, call_next: Any) -> Response:
+    async def add_process_time_header(request: Request, call_next: typing.Any) -> Response:
         start = time.perf_counter()
         response = await call_next(request)
         process_time = (time.perf_counter() - start) * 1000

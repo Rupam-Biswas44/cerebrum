@@ -54,7 +54,15 @@ select = [
 ignore = [
     "ANN101", # Missing type annotation for self
     "ANN102", # Missing type annotation for cls
+    "ANN201", # Missing return type annotation for public function
+    "ANN204", # Missing return type annotation for special method
+    "ANN401", # Dynamically typed expressions (typing.Any) are disallowed
     "S101",   # Use of assert (allowed in tests)
+    "S105",   # Possible hardcoded password (triggers on token_type="bearer")
+    "S106",   # Possible hardcoded password assigned to argument
+    "B008",   # Do not perform function call in argument defaults (FastAPI File/Depends)
+    "N818",   # Exception name should end with Error
+    "UP042",  # Class inherits from both str and enum.Enum
 ]
 exclude = [
     ".git",

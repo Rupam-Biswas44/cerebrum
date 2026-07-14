@@ -8,7 +8,7 @@ type validation, defaults, and documentation.
 from __future__ import annotations
 
 from functools import lru_cache
-from typing import Annotated, Literal
+from typing import Literal
 
 from pydantic import Field, PostgresDsn, RedisDsn, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -33,7 +33,7 @@ class Settings(BaseSettings):
     APP_VERSION: str = "0.1.0"
     APP_ENV: Literal["development", "staging", "production", "test"] = "development"
     APP_DEBUG: bool = False
-    APP_HOST: str = "0.0.0.0"
+    APP_HOST: str = "0.0.0.0"  # noqa: S104
     APP_PORT: int = Field(default=8000, ge=1, le=65535)
     APP_SECRET_KEY: str = Field(min_length=32)
     ALLOWED_HOSTS: list[str] = ["*"]

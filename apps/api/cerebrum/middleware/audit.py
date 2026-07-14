@@ -5,16 +5,14 @@ Captures every mutating request (POST, PUT, PATCH, DELETE) and asynchronously
 writes an audit log to the database. Essential for enterprise compliance.
 """
 
-import time
 from typing import Any
 
+import structlog
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from cerebrum.core.database import async_session_factory
 from models.domain import AuditLog
-import structlog
 
 logger = structlog.get_logger(__name__)
 
@@ -24,7 +22,7 @@ class AuditLogMiddleware(BaseHTTPMiddleware):
         # We only want to audit state-mutating requests
         # Or requests that are explicitly marked for auditing
         is_mutating = request.method in ("POST", "PUT", "PATCH", "DELETE")
-        
+
         response = await call_next(request)
 
         # Skip auditing if not a mutating request, or if it's a healthcheck/metric
@@ -34,12 +32,13 @@ class AuditLogMiddleware(BaseHTTPMiddleware):
         # Write audit log asynchronously in the background
         # We don't want to block the response to the user
         from fastapi import BackgroundTasks
+
         if not hasattr(request.state, "background_tasks"):
             request.state.background_tasks = BackgroundTasks()
 
         user_id = getattr(request.state, "user_id", None)
         request_id = getattr(request.state, "request_id", None)
-        
+
         # Fire and forget the audit log write
         await self._log_audit(
             method=request.method,
@@ -50,7 +49,7 @@ class AuditLogMiddleware(BaseHTTPMiddleware):
             ip_address=request.client.host if request.client else None,
             user_agent=request.headers.get("user-agent"),
         )
-        
+
         return response
 
     async def _log_audit(

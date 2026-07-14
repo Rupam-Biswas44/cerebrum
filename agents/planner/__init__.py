@@ -180,7 +180,9 @@ class PlannerAgent(BaseAgent):
         parts = [f"Goal: {context.goal}"]
 
         if context.previous_outputs:
-            parts.append(f"\nContext from previous agents:\n{json.dumps(context.previous_outputs, indent=2)[:1000]}")
+            parts.append(
+                f"\nContext from previous agents:\n{json.dumps(context.previous_outputs, indent=2)[:1000]}"  # noqa: E501
+            )
 
         if context.memory.short_term:
             recent = context.memory.short_term[-5:]  # Last 5 interactions

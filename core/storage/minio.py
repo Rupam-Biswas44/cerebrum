@@ -5,11 +5,10 @@ Handles file uploads, downloads, and presigned URLs for MinIO (S3 compatible).
 """
 
 from io import BytesIO
-from typing import Any
 
+import structlog
 from minio import Minio
 from minio.error import S3Error
-import structlog
 
 from cerebrum.config import get_settings
 
@@ -41,17 +40,19 @@ def ensure_bucket_exists(bucket_name: str) -> None:
         logger.error("minio.bucket.check.failed", bucket_name=bucket_name, error=str(e))
 
 
-def upload_file_stream(bucket_name: str, object_name: str, data: BytesIO, size: int, content_type: str) -> str:
+def upload_file_stream(
+    bucket_name: str, object_name: str, data: BytesIO, size: int, content_type: str
+) -> str:
     """
     Upload a file stream to MinIO.
-    
+
     Args:
         bucket_name: Target bucket.
         object_name: The destination path/name in the bucket.
         data: The BytesIO stream containing file data.
         size: Total size of the file in bytes.
         content_type: MIME type.
-        
+
     Returns:
         The object name/path on success.
     """
@@ -59,7 +60,7 @@ def upload_file_stream(bucket_name: str, object_name: str, data: BytesIO, size: 
         raise RuntimeError("MinIO client not initialized")
 
     ensure_bucket_exists(bucket_name)
-    
+
     try:
         minio_client.put_object(
             bucket_name=bucket_name,
@@ -68,19 +69,24 @@ def upload_file_stream(bucket_name: str, object_name: str, data: BytesIO, size: 
             length=size,
             content_type=content_type,
         )
-        logger.info("minio.upload.success", bucket_name=bucket_name, object_name=object_name, size=size)
+        logger.info(
+            "minio.upload.success", bucket_name=bucket_name, object_name=object_name, size=size
+        )
         return f"s3://{bucket_name}/{object_name}"
     except S3Error as e:
-        logger.error("minio.upload.failed", bucket_name=bucket_name, object_name=object_name, error=str(e))
-        raise RuntimeError(f"Failed to upload to storage: {e}")
+        logger.error(
+            "minio.upload.failed", bucket_name=bucket_name, object_name=object_name, error=str(e)
+        )
+        raise RuntimeError(f"Failed to upload to storage: {e}") from e
 
 
 def get_presigned_url(bucket_name: str, object_name: str, expires_seconds: int = 3600) -> str:
     """Generate a presigned URL to securely download an object."""
     from datetime import timedelta
+
     if not minio_client:
         raise RuntimeError("MinIO client not initialized")
-        
+
     try:
         url: str = minio_client.get_presigned_url(
             "GET",
@@ -90,5 +96,10 @@ def get_presigned_url(bucket_name: str, object_name: str, expires_seconds: int =
         )
         return url
     except S3Error as e:
-        logger.error("minio.presigned_url.failed", bucket_name=bucket_name, object_name=object_name, error=str(e))
-        raise RuntimeError(f"Failed to generate download URL: {e}")
+        logger.error(
+            "minio.presigned_url.failed",
+            bucket_name=bucket_name,
+            object_name=object_name,
+            error=str(e),
+        )
+        raise RuntimeError(f"Failed to generate download URL: {e}") from e

@@ -28,6 +28,7 @@ logger = structlog.get_logger(__name__)
 
 class AgentStatus(str, Enum):
     """Possible states of an agent execution."""
+
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
@@ -39,6 +40,7 @@ class AgentStatus(str, Enum):
 @dataclass
 class LLMConfig:
     """Configuration for the LLM used by an agent."""
+
     provider: str = "openai"
     model: str = "gpt-4o"
     temperature: float = 0.1
@@ -50,6 +52,7 @@ class LLMConfig:
 @dataclass
 class MemorySnapshot:
     """Snapshot of agent memory at the time of execution."""
+
     short_term: list[dict[str, Any]] = field(default_factory=list)
     relevant_long_term: list[dict[str, Any]] = field(default_factory=list)
     knowledge_nodes: list[dict[str, Any]] = field(default_factory=list)
@@ -58,6 +61,7 @@ class MemorySnapshot:
 @dataclass
 class SubTask:
     """A single subtask decomposed from a larger goal."""
+
     id: str
     description: str
     agent_type: str
@@ -69,6 +73,7 @@ class SubTask:
 @dataclass
 class EvaluationConfig:
     """Configuration for how this agent's output should be evaluated."""
+
     check_faithfulness: bool = True
     check_hallucination: bool = True
     hallucination_threshold: float = 0.7
@@ -82,10 +87,11 @@ class EvaluationScore:
     Evaluation scores for a single agent execution.
     All scores are in range [0.0, 1.0] unless noted.
     """
-    task_completion: float = 0.0      # Did agent complete its task?
-    faithfulness: float = 0.0         # Is output grounded in evidence?
-    hallucination_rate: float = 0.0   # % of claims without evidence (lower is better)
-    confidence: float = 0.0           # Agent's self-assessed confidence
+
+    task_completion: float = 0.0  # Did agent complete its task?
+    faithfulness: float = 0.0  # Is output grounded in evidence?
+    hallucination_rate: float = 0.0  # % of claims without evidence (lower is better)
+    confidence: float = 0.0  # Agent's self-assessed confidence
     user_rating: float | None = None  # Optional human feedback
 
     @property
@@ -105,15 +111,16 @@ class AgentContext:
     The input context passed to every agent.
     Contains everything the agent needs to execute its task.
     """
+
     task_id: str
     user_id: str
     project_id: str
-    goal: str                           # High-level user goal
-    subtask: SubTask                    # Specific task for this agent
-    memory: MemorySnapshot              # Relevant memory
-    tools: list[str]                    # Available tool names
-    llm_config: LLMConfig               # LLM configuration
-    previous_outputs: dict[str, Any]    # Outputs from upstream agents
+    goal: str  # High-level user goal
+    subtask: SubTask  # Specific task for this agent
+    memory: MemorySnapshot  # Relevant memory
+    tools: list[str]  # Available tool names
+    llm_config: LLMConfig  # LLM configuration
+    previous_outputs: dict[str, Any]  # Outputs from upstream agents
     evaluation_config: EvaluationConfig
     metadata: dict[str, Any] = field(default_factory=dict)
     session_id: str = field(default_factory=lambda: str(uuid.uuid4()))
@@ -125,6 +132,7 @@ class AgentResult:
     The standardized output of every agent execution.
     Includes output, reasoning chain, evidence, and evaluation scores.
     """
+
     agent_id: str
     agent_type: str
     task_id: str
@@ -132,8 +140,8 @@ class AgentResult:
     status: AgentStatus
 
     # Core output
-    output: Any = None                  # The actual result
-    reasoning: str = ""                 # Chain-of-thought explanation
+    output: Any = None  # The actual result
+    reasoning: str = ""  # Chain-of-thought explanation
     evidence: list[str] = field(default_factory=list)  # Supporting evidence
 
     # Performance metrics
@@ -293,6 +301,7 @@ class BaseAgent(ABC):
                     error=str(e),
                 )
                 import asyncio
+
                 await asyncio.sleep(delay)
                 delay *= 2  # Exponential backoff
 

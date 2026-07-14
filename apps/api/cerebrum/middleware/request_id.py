@@ -18,10 +18,10 @@ class RequestIDMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: Any) -> Response:
         # Extract existing or generate new request ID
         request_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))
-        
+
         # Bind to structlog context for all subsequent logs in this request
         structlog.contextvars.bind_contextvars(request_id=request_id)
-        
+
         # Store in request state for use in routes/audit logs
         request.state.request_id = request_id
 
@@ -30,8 +30,8 @@ class RequestIDMiddleware(BaseHTTPMiddleware):
 
         # Inject into response headers
         response.headers["X-Request-ID"] = request_id
-        
+
         # Clear structlog context (optional, but good for cleanliness)
         structlog.contextvars.clear_contextvars()
-        
+
         return response

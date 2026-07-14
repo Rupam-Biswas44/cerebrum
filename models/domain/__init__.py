@@ -30,6 +30,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 class Base(DeclarativeBase):
     """Base class for all SQLAlchemy models."""
+
     type_annotation_map = {
         dict[str, Any]: JSON,
         list[str]: JSON,
@@ -39,6 +40,7 @@ class Base(DeclarativeBase):
 
 class TimestampMixin:
     """Adds created_at and updated_at to any model."""
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
@@ -54,6 +56,7 @@ class TimestampMixin:
 
 class SoftDeleteMixin:
     """Adds soft-delete support to any model."""
+
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     @property
@@ -65,6 +68,7 @@ class SoftDeleteMixin:
 # User & Authentication
 # ============================================================
 
+
 class UserRole(str, Enum):
     ADMIN = "admin"
     ANALYST = "analyst"
@@ -74,9 +78,7 @@ class UserRole(str, Enum):
 class User(Base, TimestampMixin, SoftDeleteMixin):
     __tablename__ = "users"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     email: Mapped[str] = mapped_column(String(320), unique=True, nullable=False, index=True)
     username: Mapped[str] = mapped_column(String(50), unique=True, nullable=False, index=True)
     hashed_password: Mapped[str | None] = mapped_column(String(72), nullable=True)
@@ -90,8 +92,12 @@ class User(Base, TimestampMixin, SoftDeleteMixin):
     preferences: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
 
     # Relationships
-    sessions: Mapped[list[Session]] = relationship("Session", back_populates="user", cascade="all, delete-orphan")
-    api_keys: Mapped[list[APIKey]] = relationship("APIKey", back_populates="user", cascade="all, delete-orphan")
+    sessions: Mapped[list[Session]] = relationship(
+        "Session", back_populates="user", cascade="all, delete-orphan"
+    )  # noqa: E501
+    api_keys: Mapped[list[APIKey]] = relationship(
+        "APIKey", back_populates="user", cascade="all, delete-orphan"
+    )  # noqa: E501
     projects: Mapped[list[Project]] = relationship("Project", back_populates="owner")
 
     __table_args__ = (
@@ -104,7 +110,9 @@ class Session(Base, TimestampMixin):
     __tablename__ = "sessions"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )  # noqa: E501
     refresh_token_hash: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     user_agent: Mapped[str | None] = mapped_column(String(500), nullable=True)
@@ -118,7 +126,9 @@ class APIKey(Base, TimestampMixin):
     __tablename__ = "api_keys"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )  # noqa: E501
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     key_hash: Mapped[str] = mapped_column(String(64), unique=True, nullable=False, index=True)
     key_prefix: Mapped[str] = mapped_column(String(8), nullable=False)  # e.g. "cbr_sk_a"
@@ -157,6 +167,7 @@ class AuditLog(Base):
 # Projects & Datasets
 # ============================================================
 
+
 class Project(Base, TimestampMixin, SoftDeleteMixin):
     __tablename__ = "projects"
 
@@ -169,15 +180,21 @@ class Project(Base, TimestampMixin, SoftDeleteMixin):
     settings: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
 
     owner: Mapped[User] = relationship("User", back_populates="projects")
-    datasets: Mapped[list[Dataset]] = relationship("Dataset", back_populates="project", cascade="all, delete-orphan")
-    tasks: Mapped[list[Task]] = relationship("Task", back_populates="project", cascade="all, delete-orphan")
+    datasets: Mapped[list[Dataset]] = relationship(
+        "Dataset", back_populates="project", cascade="all, delete-orphan"
+    )  # noqa: E501
+    tasks: Mapped[list[Task]] = relationship(
+        "Task", back_populates="project", cascade="all, delete-orphan"
+    )  # noqa: E501
 
 
 class Dataset(Base, TimestampMixin, SoftDeleteMixin):
     __tablename__ = "datasets"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    project_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), nullable=False, index=True)
+    project_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("projects.id", ondelete="CASCADE"), nullable=False, index=True
+    )  # noqa: E501
     uploaded_by: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     original_filename: Mapped[str] = mapped_column(String(500), nullable=False)
@@ -189,17 +206,23 @@ class Dataset(Base, TimestampMixin, SoftDeleteMixin):
     schema_info: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
     profile: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
     is_validated: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    validation_errors: Mapped[list[dict[str, Any]]] = mapped_column(JSON, default=list, nullable=False)
+    validation_errors: Mapped[list[dict[str, Any]]] = mapped_column(
+        JSON, default=list, nullable=False
+    )  # noqa: E501
 
     project: Mapped[Project] = relationship("Project", back_populates="datasets")
-    columns: Mapped[list[DatasetColumn]] = relationship("DatasetColumn", back_populates="dataset", cascade="all, delete-orphan")
+    columns: Mapped[list[DatasetColumn]] = relationship(
+        "DatasetColumn", back_populates="dataset", cascade="all, delete-orphan"
+    )  # noqa: E501
 
 
 class DatasetColumn(Base):
     __tablename__ = "dataset_columns"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    dataset_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("datasets.id", ondelete="CASCADE"), nullable=False, index=True)
+    dataset_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("datasets.id", ondelete="CASCADE"), nullable=False, index=True
+    )  # noqa: E501
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     dtype: Mapped[str] = mapped_column(String(50), nullable=False)
     null_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
@@ -219,6 +242,7 @@ class DatasetColumn(Base):
 # Tasks & Agent Executions
 # ============================================================
 
+
 class TaskStatus(str, Enum):
     PENDING = "pending"
     RUNNING = "running"
@@ -231,10 +255,14 @@ class Task(Base, TimestampMixin):
     __tablename__ = "tasks"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    project_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), nullable=False, index=True)
+    project_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("projects.id", ondelete="CASCADE"), nullable=False, index=True
+    )  # noqa: E501
     created_by: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
     goal: Mapped[str] = mapped_column(Text, nullable=False)
-    status: Mapped[TaskStatus] = mapped_column(String(20), default=TaskStatus.PENDING, nullable=False, index=True)
+    status: Mapped[TaskStatus] = mapped_column(
+        String(20), default=TaskStatus.PENDING, nullable=False, index=True
+    )  # noqa: E501
     celery_task_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
     plan: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
     final_output: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
@@ -244,14 +272,18 @@ class Task(Base, TimestampMixin):
     error: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     project: Mapped[Project] = relationship("Project", back_populates="tasks")
-    agent_runs: Mapped[list[AgentRun]] = relationship("AgentRun", back_populates="task", cascade="all, delete-orphan")
+    agent_runs: Mapped[list[AgentRun]] = relationship(
+        "AgentRun", back_populates="task", cascade="all, delete-orphan"
+    )  # noqa: E501
 
 
 class AgentRun(Base, TimestampMixin):
     __tablename__ = "agent_runs"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    task_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("tasks.id", ondelete="CASCADE"), nullable=False, index=True)
+    task_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("tasks.id", ondelete="CASCADE"), nullable=False, index=True
+    )  # noqa: E501
     agent_id: Mapped[str] = mapped_column(String(100), nullable=False)
     agent_type: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
     subtask_id: Mapped[str] = mapped_column(String(100), nullable=False)
@@ -279,15 +311,20 @@ class AgentRun(Base, TimestampMixin):
 # ML Experiments
 # ============================================================
 
+
 class MLExperiment(Base, TimestampMixin):
     __tablename__ = "ml_experiments"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    project_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), nullable=False, index=True)
+    project_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("projects.id", ondelete="CASCADE"), nullable=False, index=True
+    )  # noqa: E501
     task_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
     dataset_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("datasets.id"), nullable=False)
     name: Mapped[str] = mapped_column(String(200), nullable=False)
-    experiment_type: Mapped[str] = mapped_column(String(50), nullable=False)  # classification, regression, forecasting, etc.
+    experiment_type: Mapped[str] = mapped_column(
+        String(50), nullable=False
+    )  # classification, regression, forecasting, etc.  # noqa: E501
     target_column: Mapped[str | None] = mapped_column(String(200), nullable=True)
     feature_columns: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
     mlflow_run_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
@@ -301,7 +338,9 @@ class MLModel(Base, TimestampMixin):
     __tablename__ = "ml_models"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    experiment_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("ml_experiments.id", ondelete="CASCADE"), nullable=False, index=True)
+    experiment_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("ml_experiments.id", ondelete="CASCADE"), nullable=False, index=True
+    )  # noqa: E501
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     model_type: Mapped[str] = mapped_column(String(50), nullable=False)
     storage_path: Mapped[str] = mapped_column(String(1000), nullable=False)

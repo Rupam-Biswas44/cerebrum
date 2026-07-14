@@ -7,18 +7,26 @@ responses across the entire API.
 """
 
 from typing import Any
-from fastapi import FastAPI, Request
-from fastapi.responses import ORJSONResponse
-from fastapi.exceptions import RequestValidationError
-from starlette.exceptions import HTTPException as StarletteHTTPException
+
 import structlog
+from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import ORJSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 logger = structlog.get_logger(__name__)
 
 
 class CerebrumException(Exception):
     """Base exception for all custom application errors."""
-    def __init__(self, message: str, status_code: int = 500, code: str = "internal_error", details: dict[str, Any] | None = None):
+
+    def __init__(
+        self,
+        message: str,
+        status_code: int = 500,
+        code: str = "internal_error",
+        details: dict[str, Any] | None = None,
+    ):
         super().__init__(message)
         self.message = message
         self.status_code = status_code
@@ -28,27 +36,38 @@ class CerebrumException(Exception):
 
 class AuthenticationError(CerebrumException):
     """Raised when authentication fails or is missing."""
-    def __init__(self, message: str = "Authentication failed", details: dict[str, Any] | None = None):
+
+    def __init__(
+        self, message: str = "Authentication failed", details: dict[str, Any] | None = None
+    ):
         super().__init__(message, status_code=401, code="unauthorized", details=details)
 
 
 class AuthorizationError(CerebrumException):
     """Raised when an authenticated user lacks required permissions."""
+
     def __init__(self, message: str = "Permission denied", details: dict[str, Any] | None = None):
         super().__init__(message, status_code=403, code="forbidden", details=details)
 
 
 class NotFoundError(CerebrumException):
     """Raised when a requested resource is not found."""
+
     def __init__(self, resource: str, resource_id: str | None = None):
         msg = f"{resource} not found"
         if resource_id:
             msg += f" (id: {resource_id})"
-        super().__init__(msg, status_code=404, code="not_found", details={"resource": resource, "id": resource_id})
+        super().__init__(
+            msg,
+            status_code=404,
+            code="not_found",
+            details={"resource": resource, "id": resource_id},
+        )
 
 
 class ValidationError(CerebrumException):
     """Raised when business logic validation fails."""
+
     def __init__(self, message: str, details: dict[str, Any] | None = None):
         super().__init__(message, status_code=422, code="validation_error", details=details)
 
@@ -57,7 +76,9 @@ def configure_exception_handlers(app: FastAPI) -> None:
     """Register all exception handlers with the FastAPI app."""
 
     @app.exception_handler(CerebrumException)
-    async def cerebrum_exception_handler(request: Request, exc: CerebrumException) -> ORJSONResponse:
+    async def cerebrum_exception_handler(
+        request: Request, exc: CerebrumException
+    ) -> ORJSONResponse:
         logger.warning(
             "api.error.cerebrum",
             error_code=exc.code,
@@ -77,7 +98,9 @@ def configure_exception_handlers(app: FastAPI) -> None:
         )
 
     @app.exception_handler(RequestValidationError)
-    async def validation_exception_handler(request: Request, exc: RequestValidationError) -> ORJSONResponse:
+    async def validation_exception_handler(
+        request: Request, exc: RequestValidationError
+    ) -> ORJSONResponse:
         logger.info("api.error.validation", errors=exc.errors(), path=request.url.path)
         return ORJSONResponse(
             status_code=422,
@@ -92,8 +115,12 @@ def configure_exception_handlers(app: FastAPI) -> None:
         )
 
     @app.exception_handler(StarletteHTTPException)
-    async def http_exception_handler(request: Request, exc: StarletteHTTPException) -> ORJSONResponse:
-        logger.warning("api.error.http", status_code=exc.status_code, detail=exc.detail, path=request.url.path)
+    async def http_exception_handler(
+        request: Request, exc: StarletteHTTPException
+    ) -> ORJSONResponse:
+        logger.warning(
+            "api.error.http", status_code=exc.status_code, detail=exc.detail, path=request.url.path
+        )
         return ORJSONResponse(
             status_code=exc.status_code,
             content={

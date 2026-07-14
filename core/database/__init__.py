@@ -8,7 +8,7 @@ the async session maker for dependency injection.
 
 from __future__ import annotations
 
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
 import structlog
 from sqlalchemy.ext.asyncio import (
@@ -83,7 +83,7 @@ async def dispose_db_pool() -> None:
     async_session_factory = None
 
 
-async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
+async def get_db_session() -> AsyncGenerator[AsyncSession]:
     """
     FastAPI dependency that provides a transactional database session.
     Automatically commits on success or rolls back on exception.

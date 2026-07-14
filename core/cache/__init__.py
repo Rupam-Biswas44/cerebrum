@@ -41,7 +41,7 @@ async def create_redis_pool() -> None:
             socket_connect_timeout=5.0,
             retry_on_timeout=True,
         )
-        
+
         # Test connection
         await redis_client.ping()
 

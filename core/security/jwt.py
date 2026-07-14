@@ -5,45 +5,42 @@ Provides utilities for creating and decoding JSON Web Tokens (JWT)
 for access and refresh token flows.
 """
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
-from jose import jwt, JWTError
+from jose import JWTError, jwt
+
 from cerebrum.config import get_settings
 
 settings = get_settings()
 
 
 def create_access_token(
-    subject: str | Any,
-    role: str = "analyst",
-    expires_delta: timedelta | None = None
+    subject: str | Any, role: str = "analyst", expires_delta: timedelta | None = None
 ) -> str:
     """
     Create a JWT access token.
-    
+
     Args:
         subject: Typically the user_id as a string.
         role: The user's role (admin, analyst, viewer).
         expires_delta: Optional custom expiration timedelta.
-        
+
     Returns:
         The encoded JWT token as a string.
     """
     if expires_delta:
-        expire = datetime.now(timezone.utc) + expires_delta
+        expire = datetime.now(UTC) + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(
-            minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES
-        )
-        
+        expire = datetime.now(UTC) + timedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
+
     to_encode = {
         "exp": expire,
         "sub": str(subject),
         "role": role,
         "type": "access",
     }
-    
+
     encoded_jwt = jwt.encode(
         to_encode,
         settings.JWT_SECRET_KEY,
@@ -55,27 +52,25 @@ def create_access_token(
 def create_refresh_token(subject: str | Any, expires_delta: timedelta | None = None) -> str:
     """
     Create a JWT refresh token. (Typically has a longer lifespan).
-    
+
     Args:
         subject: Typically the user_id as a string.
         expires_delta: Optional custom expiration timedelta.
-        
+
     Returns:
         The encoded JWT token as a string.
     """
     if expires_delta:
-        expire = datetime.now(timezone.utc) + expires_delta
+        expire = datetime.now(UTC) + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(
-            days=settings.JWT_REFRESH_TOKEN_EXPIRE_DAYS
-        )
-        
+        expire = datetime.now(UTC) + timedelta(days=settings.JWT_REFRESH_TOKEN_EXPIRE_DAYS)
+
     to_encode = {
         "exp": expire,
         "sub": str(subject),
         "type": "refresh",
     }
-    
+
     encoded_jwt = jwt.encode(
         to_encode,
         settings.JWT_SECRET_KEY,
@@ -87,13 +82,13 @@ def create_refresh_token(subject: str | Any, expires_delta: timedelta | None = N
 def decode_token(token: str) -> dict[str, Any]:
     """
     Decode and validate a JWT token.
-    
+
     Args:
         token: The encoded JWT string.
-        
+
     Returns:
         The decoded payload as a dictionary.
-        
+
     Raises:
         JWTError: If the token is invalid or expired.
     """

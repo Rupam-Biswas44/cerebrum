@@ -7,9 +7,7 @@ retry logic, and evaluation scoring without any external dependencies.
 
 from __future__ import annotations
 
-import asyncio
 import uuid
-from unittest.mock import AsyncMock, patch
 
 import pytest
 
@@ -24,7 +22,6 @@ from agents.base import (
     MemorySnapshot,
     SubTask,
 )
-
 
 # ── Fixtures ──────────────────────────────────────────────────────────────
 
@@ -326,11 +323,12 @@ class TestEvaluationScore:
     def test_score_bounds(self) -> None:
         """Overall score must always be between 0 and 1."""
         for _ in range(10):
-            import random
+            import secrets
+
             score = EvaluationScore(
-                task_completion=random.random(),
-                faithfulness=random.random(),
-                hallucination_rate=random.random(),
-                confidence=random.random(),
+                task_completion=secrets.SystemRandom().random(),
+                faithfulness=secrets.SystemRandom().random(),
+                hallucination_rate=secrets.SystemRandom().random(),
+                confidence=secrets.SystemRandom().random(),
             )
             assert 0.0 <= score.overall_score <= 1.0

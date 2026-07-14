@@ -27,7 +27,7 @@ async def login(
     db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> Token:
     """
-    OAuth2 compatible token login. 
+    OAuth2 compatible token login.
     Accepts application/x-www-form-urlencoded with 'username' and 'password'.
     (In this application, 'username' maps to the user's email).
     """
@@ -38,13 +38,13 @@ async def login(
 
     if not user:
         raise AuthenticationError("Incorrect email or password")
-    
+
     if not user.hashed_password:
         raise AuthenticationError("User registered via OAuth, cannot login with password")
 
     if not verify_password(form_data.password, user.hashed_password):
         raise AuthenticationError("Incorrect email or password")
-        
+
     if not user.is_active:
         raise AuthenticationError("Account is inactive")
 
@@ -55,7 +55,7 @@ async def login(
     return Token(
         access_token=access_token,
         refresh_token=refresh_token,
-        token_type="bearer",
+        token_type="bearer",  # noqa: S106
     )
 
 
@@ -71,7 +71,7 @@ async def refresh_token(
             raise AuthenticationError("Invalid token type. Refresh token required.")
         user_id = payload.get("sub")
     except Exception as e:
-        raise AuthenticationError(f"Invalid refresh token: {e}")
+        raise AuthenticationError(f"Invalid refresh token: {e}") from e
 
     stmt = select(User).where(User.id == user_id, User.deleted_at.is_(None))
     result = await db.execute(stmt)
@@ -82,10 +82,9 @@ async def refresh_token(
 
     # Issue a new access token only
     access_token = create_access_token(subject=str(user.id), role=user.role.value)
-    
+
     return Token(
         access_token=access_token,
         refresh_token=refresh_token,
-        token_type="bearer",
+        token_type="bearer",  # noqa: S106
     )
-

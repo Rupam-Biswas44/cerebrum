@@ -52,7 +52,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             pipe.incr(window_key)
             pipe.expire(window_key, 120)  # 2 minutes TTL
             result = await pipe.execute()
-            
+
         requests_this_minute = result[0]
 
         if requests_this_minute > (self.requests_per_minute + self.burst):
@@ -66,10 +66,10 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             )
 
         response = await call_next(request)
-        
+
         # Add rate limit headers
         remaining = max(0, self.requests_per_minute + self.burst - requests_this_minute)
         response.headers["X-RateLimit-Limit"] = str(self.requests_per_minute)
         response.headers["X-RateLimit-Remaining"] = str(remaining)
-        
+
         return response

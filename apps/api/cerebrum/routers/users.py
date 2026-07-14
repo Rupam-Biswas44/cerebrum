@@ -47,7 +47,7 @@ async def create_user(
         hashed_password=get_password_hash(user_in.password),
         is_active=True,
     )
-    
+
     db.add(db_user)
     await db.commit()
     await db.refresh(db_user)
@@ -74,4 +74,3 @@ async def list_users(
     stmt = select(User).offset(skip).limit(limit)
     result = await db.execute(stmt)
     return list(result.scalars().all())
-
