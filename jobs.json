@@ -1,0 +1,222 @@
+{
+  "total_count": 4,
+  "jobs": [
+    {
+      "id": 86974653549,
+      "run_id": 29297691503,
+      "workflow_name": "CD — Deploy to Production",
+      "head_branch": "main",
+      "run_url": "https://api.github.com/repos/Rupam-Biswas44/cerebrum/actions/runs/29297691503",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTXm8PM8AAAAUQBfkbQ",
+      "head_sha": "417197cf962f6770ff768701675f69f65b79a8ad",
+      "url": "https://api.github.com/repos/Rupam-Biswas44/cerebrum/actions/jobs/86974653549",
+      "html_url": "https://github.com/Rupam-Biswas44/cerebrum/actions/runs/29297691503/job/86974653549",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-07-14T01:05:43Z",
+      "started_at": "2026-07-14T01:05:46Z",
+      "completed_at": "2026-07-14T01:05:50Z",
+      "name": "Verify CI Passed",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-07-14T01:05:47Z",
+          "completed_at": "2026-07-14T01:05:47Z"
+        },
+        {
+          "name": "Check CI workflow",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-07-14T01:05:47Z",
+          "completed_at": "2026-07-14T01:05:47Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-07-14T01:05:47Z",
+          "completed_at": "2026-07-14T01:05:47Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Rupam-Biswas44/cerebrum/check-runs/86974653549",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000000069,
+      "runner_name": "GitHub Actions 1000000069",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 86974667973,
+      "run_id": 29297691503,
+      "workflow_name": "CD — Deploy to Production",
+      "head_branch": "main",
+      "run_url": "https://api.github.com/repos/Rupam-Biswas44/cerebrum/actions/runs/29297691503",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTXm8PM8AAAAUQBgcxQ",
+      "head_sha": "417197cf962f6770ff768701675f69f65b79a8ad",
+      "url": "https://api.github.com/repos/Rupam-Biswas44/cerebrum/actions/jobs/86974667973",
+      "html_url": "https://github.com/Rupam-Biswas44/cerebrum/actions/runs/29297691503/job/86974667973",
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-07-14T01:05:50Z",
+      "started_at": "2026-07-14T01:05:52Z",
+      "completed_at": "2026-07-14T01:05:56Z",
+      "name": "Deploy (Docker Compose)",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-07-14T01:05:53Z",
+          "completed_at": "2026-07-14T01:05:53Z"
+        },
+        {
+          "name": "Checkout code",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-07-14T01:05:53Z",
+          "completed_at": "2026-07-14T01:05:54Z"
+        },
+        {
+          "name": "Set image version",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-07-14T01:05:54Z",
+          "completed_at": "2026-07-14T01:05:54Z"
+        },
+        {
+          "name": "Deploy to server via SSH",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 4,
+          "started_at": "2026-07-14T01:05:54Z",
+          "completed_at": "2026-07-14T01:05:54Z"
+        },
+        {
+          "name": "Post Checkout code",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-07-14T01:05:54Z",
+          "completed_at": "2026-07-14T01:05:55Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-07-14T01:05:55Z",
+          "completed_at": "2026-07-14T01:05:55Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Rupam-Biswas44/cerebrum/check-runs/86974667973",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000000070,
+      "runner_name": "GitHub Actions 1000000070",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 86974681504,
+      "run_id": 29297691503,
+      "workflow_name": "CD — Deploy to Production",
+      "head_branch": "main",
+      "run_url": "https://api.github.com/repos/Rupam-Biswas44/cerebrum/actions/runs/29297691503",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTXm8PM8AAAAUQBhRoA",
+      "head_sha": "417197cf962f6770ff768701675f69f65b79a8ad",
+      "url": "https://api.github.com/repos/Rupam-Biswas44/cerebrum/actions/jobs/86974681504",
+      "html_url": "https://github.com/Rupam-Biswas44/cerebrum/actions/runs/29297691503/job/86974681504",
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-07-14T01:05:56Z",
+      "started_at": "2026-07-14T01:05:58Z",
+      "completed_at": "2026-07-14T01:06:01Z",
+      "name": "Notify Deployment Status",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-07-14T01:05:59Z",
+          "completed_at": "2026-07-14T01:05:59Z"
+        },
+        {
+          "name": "Deployment Success Notification",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 2,
+          "started_at": "2026-07-14T01:05:59Z",
+          "completed_at": "2026-07-14T01:05:59Z"
+        },
+        {
+          "name": "Deployment Failure Notification",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 3,
+          "started_at": "2026-07-14T01:05:59Z",
+          "completed_at": "2026-07-14T01:05:59Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-07-14T01:05:59Z",
+          "completed_at": "2026-07-14T01:05:59Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Rupam-Biswas44/cerebrum/check-runs/86974681504",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000000071,
+      "runner_name": "GitHub Actions 1000000071",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 86974681535,
+      "run_id": 29297691503,
+      "workflow_name": "CD — Deploy to Production",
+      "head_branch": "main",
+      "run_url": "https://api.github.com/repos/Rupam-Biswas44/cerebrum/actions/runs/29297691503",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTXm8PM8AAAAUQBhRvw",
+      "head_sha": "417197cf962f6770ff768701675f69f65b79a8ad",
+      "url": "https://api.github.com/repos/Rupam-Biswas44/cerebrum/actions/jobs/86974681535",
+      "html_url": "https://github.com/Rupam-Biswas44/cerebrum/actions/runs/29297691503/job/86974681535",
+      "status": "completed",
+      "conclusion": "skipped",
+      "created_at": "2026-07-14T01:05:56Z",
+      "started_at": "2026-07-14T01:05:56Z",
+      "completed_at": "2026-07-14T01:05:56Z",
+      "name": "Post-Deploy Smoke Tests",
+      "steps": [
+
+      ],
+      "check_run_url": "https://api.github.com/repos/Rupam-Biswas44/cerebrum/check-runs/86974681535",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": null,
+      "runner_name": null,
+      "runner_group_id": null,
+      "runner_group_name": null
+    }
+  ]
+}

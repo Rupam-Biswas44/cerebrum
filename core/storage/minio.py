@@ -25,7 +25,7 @@ try:
     )
 except Exception as e:
     logger.error("minio.init.failed", error=str(e))
-    minio_client: Minio | None = None  # type: ignore[assignment]
+    minio_client = None  # type: ignore[assignment]
 
 
 def ensure_bucket_exists(bucket_name: str) -> None:

@@ -70,6 +70,7 @@ ignore = [
     "N818",   # Exception name should end with Error
     "UP042",  # Class inherits from both str and enum.Enum
     "S608",   # Possible SQL injection vector through string-based query construction (safe here)
+    "N806",   # Variable in function should be lowercase (ML convention uses uppercase X, X_train etc.)
 ]
 exclude = [
     ".git",
