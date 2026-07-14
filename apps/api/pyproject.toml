@@ -2,7 +2,7 @@
 name = "cerebrum-api"
 version = "0.1.0"
 description = "Cerebrum Enterprise AI Platform — Backend API"
-requires-python = ">=3.13"
+requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [{ name = "Rupam Biswas", email = "rupam@cerebrum.ai" }]
 
@@ -26,7 +26,7 @@ dependencies = [
 
     # Task queue
     "celery[redis]>=5.4.0",
-    "redbeat>=2.2.0",
+    "celery-redbeat>=2.2.0",
 
     # Authentication
     "python-jose[cryptography]>=3.3.0",

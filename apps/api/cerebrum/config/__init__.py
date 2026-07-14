@@ -51,8 +51,10 @@ class Settings(BaseSettings):
     # ── Object Storage — MinIO ────────────────────────────────────────────
     MINIO_HOST: str = "localhost"
     MINIO_PORT: int = 9000
-    MINIO_ACCESS_KEY: str
-    MINIO_SECRET_KEY: str
+    MINIO_ACCESS_KEY: str = "minioadmin"
+    MINIO_SECRET_KEY: str = "minioadmin"
+    MINIO_ROOT_USER: str = "minioadmin"  # alias used by minio client
+    MINIO_ROOT_PASSWORD: str = "minioadmin"  # alias used by minio client
     MINIO_BUCKET_DATASETS: str = "cerebrum-datasets"
     MINIO_BUCKET_MODELS: str = "cerebrum-models"
     MINIO_BUCKET_REPORTS: str = "cerebrum-reports"
@@ -65,11 +67,15 @@ class Settings(BaseSettings):
     QDRANT_COLLECTION_MEMORY: str = "cerebrum_memory"
     QDRANT_COLLECTION_DOCUMENTS: str = "cerebrum_documents"
 
-    # ── Graph Database — Neo4j ────────────────────────────────────────────
     NEO4J_URI: str = "bolt://localhost:7687"
     NEO4J_USER: str = "neo4j"
-    NEO4J_PASSWORD: str
+    NEO4J_PASSWORD: str = "CHANGE_ME_NEO4J_PASSWORD"
     NEO4J_DATABASE: str = "neo4j"
+
+    @property
+    def NEO4J_URL(self) -> str:  # noqa: N802
+        """Alias for NEO4J_URI for compatibility with neo4j driver."""
+        return self.NEO4J_URI
 
     # ── LLM Providers ─────────────────────────────────────────────────────
     OPENAI_API_KEY: str | None = None

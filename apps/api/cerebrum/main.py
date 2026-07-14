@@ -33,6 +33,7 @@ from cerebrum.routers import (
     auth,
     datasets,
     health,
+    memory,
     ml,
     projects,
     reports,
@@ -78,6 +79,11 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     logger.info("cerebrum.shutdown.start")
     await dispose_db_pool()
     await close_redis_pool()
+    try:
+        from services.knowledge_graph import close_neo4j_driver
+        await close_neo4j_driver()
+    except Exception:  # noqa: BLE001
+        pass
     logger.info("cerebrum.shutdown.complete")
 
 
@@ -189,6 +195,7 @@ def _configure_routers(app: FastAPI) -> None:
         tags=["Visualizations"],
     )
     app.include_router(reports.router, prefix=f"{api_v1}/reports", tags=["Reports"])
+    app.include_router(memory.router, prefix=f"{api_v1}/memory", tags=["Memory"])
 
 
 # ── Application instance ────────────────────────────────────────────────────
