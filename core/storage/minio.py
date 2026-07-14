@@ -25,7 +25,7 @@ try:
     )
 except Exception as e:
     logger.error("minio.init.failed", error=str(e))
-    minio_client = None
+    minio_client: Minio | None = None  # type: ignore[assignment]
 
 
 def ensure_bucket_exists(bucket_name: str) -> None:
@@ -50,7 +50,7 @@ def upload_file_stream(
         bucket_name: Target bucket.
         object_name: The destination path/name in the bucket.
         data: The BytesIO stream containing file data.
-        size: Total size of the file in bytes.
+        columns: list[ColumnProfile] of the file in bytes.
         content_type: MIME type.
 
     Returns:

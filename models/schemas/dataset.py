@@ -24,7 +24,7 @@ class ColumnProfile(BaseModel):
 class DatasetProfile(BaseModel):
     row_count: int
     column_count: int
-    schema: list[ColumnProfile]
+    columns: list[ColumnProfile]
 
 
 class DatasetResponse(BaseModel):

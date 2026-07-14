@@ -46,17 +46,17 @@ def get_qdrant_client() -> AsyncQdrantClient:
     )
 
 
-def _get_embedder():  # noqa: ANN202
+def _get_embedder() -> Any:  # noqa: ANN202
     """Lazy-load the SentenceTransformer model to avoid import overhead."""
     from sentence_transformers import SentenceTransformer
 
     return SentenceTransformer("all-MiniLM-L6-v2")
 
 
-_embedder = None
+_embedder: Any = None
 
 
-def get_embedder():  # noqa: ANN202
+def get_embedder() -> Any:  # noqa: ANN202
     """Singleton accessor for the embedding model."""
     global _embedder  # noqa: PLW0603
     if _embedder is None:
@@ -178,7 +178,7 @@ async def semantic_search(
             ]
         )
 
-    results = await client.search(
+    results = await client.search(  # type: ignore[attr-defined]
         collection_name=collection,
         query_vector=query_vector,
         limit=top_k,

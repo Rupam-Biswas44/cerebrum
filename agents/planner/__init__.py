@@ -123,7 +123,7 @@ class PlannerAgent(BaseAgent):
         raw_content = response.content
 
         # Parse the plan
-        plan = self._parse_plan(raw_content)
+        plan = self._parse_plan(str(raw_content))
 
         subtasks = [
             SubTask(
@@ -143,6 +143,10 @@ class PlannerAgent(BaseAgent):
             agents_involved=[st.agent_type for st in subtasks],
         )
 
+        tokens_used = 0
+        if hasattr(response, "usage_metadata") and response.usage_metadata:
+            tokens_used = response.usage_metadata.get("total_tokens", 0)
+
         return AgentResult(
             agent_id=self.agent_id,
             agent_type=self.agent_type,
@@ -156,9 +160,7 @@ class PlannerAgent(BaseAgent):
             },
             reasoning=plan.get("plan_reasoning", ""),
             evidence=["Generated from user goal via LLM planning"],
-            tokens_used=response.usage_metadata.get("total_tokens", 0)
-            if hasattr(response, "usage_metadata")
-            else 0,
+            tokens_used=tokens_used,
             evaluation=EvaluationScore(
                 task_completion=1.0,
                 faithfulness=0.9,
@@ -234,4 +236,4 @@ class PlannerAgent(BaseAgent):
         # Cap to max_subtasks
         plan["subtasks"] = plan["subtasks"][: self.max_subtasks]
 
-        return plan
+        return dict(plan)

@@ -29,7 +29,6 @@ Architecture:
 
 from __future__ import annotations
 
-import uuid
 from typing import Any, TypedDict
 
 import structlog
@@ -86,15 +85,21 @@ async def planner_node(state: OrchestratorState) -> OrchestratorState:
     logger.info("orchestrator.node.planner", task_id=state["task_id"])
 
     try:
-        from agents.base import AgentContext, LLMConfig
+        from agents.base import AgentContext, EvaluationConfig, LLMConfig, MemorySnapshot, SubTask
         from agents.planner import PlannerAgent
 
-        agent = PlannerAgent(llm_config=LLMConfig())
+        agent = PlannerAgent()
         context = AgentContext(
-            task_id=uuid.UUID(state["task_id"]),
-            project_id=uuid.UUID(state["project_id"]),
-            user_id=uuid.UUID(state["user_id"]),
+            task_id=state["task_id"],
+            project_id=state["project_id"],
+            user_id=state["user_id"],
             goal=state["goal"],
+            subtask=SubTask(id="planner-task", description="Plan workflow", agent_type="planner"),
+            memory=MemorySnapshot(),
+            tools=["search_memory", "store_insight"],
+            llm_config=LLMConfig(),
+            previous_outputs={},
+            evaluation_config=EvaluationConfig(),
         )
         result = await agent.run(context)
 
@@ -121,17 +126,25 @@ async def data_engineer_node(state: OrchestratorState) -> OrchestratorState:
     """Data Engineer Node — queries, cleans, and transforms datasets."""
     logger.info("orchestrator.node.data_engineer", task_id=state["task_id"])
     try:
-        from agents.base import AgentContext, LLMConfig
+        from agents.base import AgentContext, EvaluationConfig, LLMConfig, MemorySnapshot, SubTask
         from agents.data_engineer import DataEngineerAgent
 
-        agent = DataEngineerAgent(llm_config=LLMConfig())
+        agent = DataEngineerAgent()
         context = AgentContext(
-            task_id=uuid.UUID(state["task_id"]),
-            project_id=uuid.UUID(state["project_id"]),
-            user_id=uuid.UUID(state["user_id"]),
+            task_id=state["task_id"],
+            project_id=state["project_id"],
+            user_id=state["user_id"],
             goal=state["goal"],
-            plan=state["plan"],
+            subtask=SubTask(
+                id="de-task",
+                description="Data engineering",
+                agent_type="data_engineer",
+            ),
+            memory=MemorySnapshot(),
+            tools=["query_dataset", "profile_dataset"],
+            llm_config=LLMConfig(),
             previous_outputs=state["agent_outputs"],
+            evaluation_config=EvaluationConfig(),
         )
         result = await agent.run(context)
         return {
@@ -148,17 +161,21 @@ async def statistician_node(state: OrchestratorState) -> OrchestratorState:
     """Statistician Node — performs EDA, hypothesis testing, and correlations."""
     logger.info("orchestrator.node.statistician", task_id=state["task_id"])
     try:
-        from agents.base import AgentContext, LLMConfig
+        from agents.base import AgentContext, EvaluationConfig, LLMConfig, MemorySnapshot, SubTask
         from agents.statistician import StatisticianAgent
 
-        agent = StatisticianAgent(llm_config=LLMConfig())
+        agent = StatisticianAgent()
         context = AgentContext(
-            task_id=uuid.UUID(state["task_id"]),
-            project_id=uuid.UUID(state["project_id"]),
-            user_id=uuid.UUID(state["user_id"]),
+            task_id=state["task_id"],
+            project_id=state["project_id"],
+            user_id=state["user_id"],
             goal=state["goal"],
-            plan=state["plan"],
+            subtask=SubTask(id="stat-task", description="Statistics", agent_type="statistician"),
+            memory=MemorySnapshot(),
+            tools=[],
+            llm_config=LLMConfig(),
             previous_outputs=state["agent_outputs"],
+            evaluation_config=EvaluationConfig(),
         )
         result = await agent.run(context)
         return {
@@ -175,17 +192,21 @@ async def writer_node(state: OrchestratorState) -> OrchestratorState:
     """Writer Node — synthesizes all outputs into a final report."""
     logger.info("orchestrator.node.writer", task_id=state["task_id"])
     try:
-        from agents.base import AgentContext, LLMConfig
+        from agents.base import AgentContext, EvaluationConfig, LLMConfig, MemorySnapshot, SubTask
         from agents.writer import WriterAgent
 
-        agent = WriterAgent(llm_config=LLMConfig())
+        agent = WriterAgent()
         context = AgentContext(
-            task_id=uuid.UUID(state["task_id"]),
-            project_id=uuid.UUID(state["project_id"]),
-            user_id=uuid.UUID(state["user_id"]),
+            task_id=state["task_id"],
+            project_id=state["project_id"],
+            user_id=state["user_id"],
             goal=state["goal"],
-            plan=state["plan"],
+            subtask=SubTask(id="writer-task", description="Writing", agent_type="writer"),
+            memory=MemorySnapshot(),
+            tools=[],
+            llm_config=LLMConfig(),
             previous_outputs=state["agent_outputs"],
+            evaluation_config=EvaluationConfig(),
         )
         result = await agent.run(context)
         return {

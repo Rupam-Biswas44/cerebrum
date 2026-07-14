@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  PYTHON_VERSION: "3.13"
+  PYTHON_VERSION: "3.10"
   NODE_VERSION: "20"
   REGISTRY: ghcr.io
   IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}
@@ -38,7 +38,7 @@ jobs:
       - name: Install dev dependencies
         run: |
           pip install --upgrade pip
-          pip install ruff mypy
+          pip install ruff mypy pydantic pydantic-settings
 
       - name: Run Ruff linter
         run: ruff check . --output-format=github
@@ -49,6 +49,7 @@ jobs:
       - name: Run MyPy type check
         run: |
           pip install -e "apps/api[dev]"
+          pip install pydantic pydantic-settings  # needed for pydantic.mypy plugin
           mypy apps/api/cerebrum agents services core models \
             --ignore-missing-imports \
             --no-error-summary

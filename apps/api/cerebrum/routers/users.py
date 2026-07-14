@@ -60,7 +60,7 @@ async def read_users_me(
     current_user: RequireAnyRole,
 ) -> User:
     """Get current user's profile."""
-    return current_user
+    return current_user  # type: ignore[no-any-return]
 
 
 @router.get("", response_model=list[UserResponse])
