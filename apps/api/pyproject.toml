@@ -64,6 +64,11 @@ dependencies = [
     "seaborn>=0.13.0",
     "kaleido>=0.2.1",
 
+    # Reporting
+    "fpdf2>=2.8.0",
+    "python-pptx>=1.0.0",
+    "Jinja2>=3.1.4",
+
     # LLM / AI
     "langchain>=0.3.0",
     "langgraph>=0.2.0",
