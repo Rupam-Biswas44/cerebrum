@@ -51,6 +51,7 @@ async def close_neo4j_driver() -> None:
 # Graph Schema Bootstrap
 # ============================================================
 
+
 async def ensure_constraints() -> None:
     """
     Ensure database constraints and indexes exist.
@@ -72,6 +73,7 @@ async def ensure_constraints() -> None:
 # ============================================================
 # Node Operations
 # ============================================================
+
 
 async def upsert_project_node(project_id: uuid.UUID, name: str, owner_id: uuid.UUID) -> None:
     """Create or update a Project node and link it to its owner User."""
@@ -117,7 +119,11 @@ async def upsert_dataset_node(
     logger.info("neo4j.dataset.upserted", dataset_id=str(dataset_id))
 
 
-async def link_model_to_dataset(model_id: uuid.UUID, dataset_id: uuid.UUID, experiment_id: uuid.UUID) -> None:
+async def link_model_to_dataset(  # noqa: E501
+    model_id: uuid.UUID,
+    dataset_id: uuid.UUID,
+    experiment_id: uuid.UUID,
+) -> None:
     """Record that an ML model was trained on a specific dataset (data lineage)."""
     driver = get_neo4j_driver()
     async with driver.session() as session:
@@ -138,6 +144,7 @@ async def link_model_to_dataset(model_id: uuid.UUID, dataset_id: uuid.UUID, expe
 # ============================================================
 # Graph Queries
 # ============================================================
+
 
 async def get_project_lineage(project_id: uuid.UUID) -> list[dict[str, Any]]:
     """

@@ -22,7 +22,7 @@ from __future__ import annotations
 
 import json
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any
 
 import structlog
@@ -33,6 +33,7 @@ logger = structlog.get_logger(__name__)
 # ============================================================
 # Tier 1 — Short-Term Memory (Redis)
 # ============================================================
+
 
 async def store_short_term(
     redis: Any,
@@ -83,6 +84,7 @@ async def clear_short_term_session(redis: Any, session_id: str) -> None:
 # Tier 2 — Medium-Term Memory (PostgreSQL AgentMemory records)
 # ============================================================
 
+
 async def store_medium_term(
     db: Any,
     user_id: uuid.UUID,
@@ -106,23 +108,30 @@ async def store_medium_term(
     """
     from sqlalchemy import text
 
-    stmt = text("""
+    stmt = text(
+        """
         INSERT INTO agent_memories
-            (id, user_id, project_id, memory_type, content, importance, expires_at, created_at, updated_at)
+            (id, user_id, project_id, memory_type, content,
+             importance, expires_at, created_at, updated_at)
         VALUES
-            (:id, :user_id, :project_id, :memory_type, :content, :importance, :expires_at, now(), now())
+            (:id, :user_id, :project_id, :memory_type, :content,
+             :importance, :expires_at, now(), now())
         ON CONFLICT DO NOTHING
-    """)
+    """
+    )
 
-    await db.execute(stmt, {
-        "id": uuid.uuid4(),
-        "user_id": str(user_id),
-        "project_id": str(project_id) if project_id else None,
-        "memory_type": memory_type,
-        "content": json.dumps(content),
-        "importance": importance,
-        "expires_at": expires_at,
-    })
+    await db.execute(
+        stmt,
+        {
+            "id": uuid.uuid4(),
+            "user_id": str(user_id),
+            "project_id": str(project_id) if project_id else None,
+            "memory_type": memory_type,
+            "content": json.dumps(content),
+            "importance": importance,
+            "expires_at": expires_at,
+        },
+    )
     await db.commit()
     logger.info("memory.medium_term.stored", user_id=str(user_id), memory_type=memory_type)
 
@@ -152,13 +161,15 @@ async def get_medium_term(
         params["project_id"] = str(project_id)
 
     where_clause = " AND ".join(filters)
-    stmt = text(f"""
+    stmt = text(
+        f"""  # noqa: S608
         SELECT id, memory_type, content, importance, created_at
         FROM agent_memories
         WHERE {where_clause}
         ORDER BY importance DESC, created_at DESC
         LIMIT :limit
-    """)
+    """
+    )
 
     result = await db.execute(stmt, params)
     rows = result.fetchall()

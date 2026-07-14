@@ -26,14 +26,16 @@ router = APIRouter()
 # Request / Response Models
 # ============================================================
 
+
 class StoreMemoryRequest(BaseModel):
-    memory_type: str = Field(..., description="Type tag e.g. 'insight', 'preference', 'task_summary'")
+    memory_type: str = Field(  # noqa: E501
+        ..., description="Type tag e.g. 'insight', 'preference', 'task_summary'"
+    )
     content: dict[str, Any] = Field(..., description="Arbitrary JSON content to store")
     importance: float = Field(default=0.5, ge=0.0, le=1.0)
     project_id: uuid.UUID | None = None
     index_for_search: bool = Field(
-        default=True,
-        description="If True, also embed and store in Qdrant for semantic search"
+        default=True, description="If True, also embed and store in Qdrant for semantic search"
     )
 
 
@@ -62,6 +64,7 @@ class SemanticSearchResult(BaseModel):
 # ============================================================
 # Endpoints
 # ============================================================
+
 
 @router.post("", status_code=201)
 async def store_memory(

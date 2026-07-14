@@ -81,9 +81,10 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     await close_redis_pool()
     try:
         from services.knowledge_graph import close_neo4j_driver
+
         await close_neo4j_driver()
-    except Exception:  # noqa: BLE001
-        pass
+    except Exception as e:  # noqa: BLE001
+        logger.warning("neo4j.close.failed", error=str(e))
     logger.info("cerebrum.shutdown.complete")
 
 

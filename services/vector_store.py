@@ -20,8 +20,8 @@ from pydantic import BaseModel
 from qdrant_client import AsyncQdrantClient
 from qdrant_client.models import (
     Distance,
-    Filter,
     FieldCondition,
+    Filter,
     MatchValue,
     PointStruct,
     VectorParams,
@@ -49,6 +49,7 @@ def get_qdrant_client() -> AsyncQdrantClient:
 def _get_embedder():  # noqa: ANN202
     """Lazy-load the SentenceTransformer model to avoid import overhead."""
     from sentence_transformers import SentenceTransformer
+
     return SentenceTransformer("all-MiniLM-L6-v2")
 
 
@@ -106,6 +107,7 @@ async def ensure_collection(client: AsyncQdrantClient, project_id: uuid.UUID) ->
 
 class VectorMemory(BaseModel):
     """A single piece of content stored as a vector in Qdrant."""
+
     id: str
     text: str
     payload: dict[str, Any]
@@ -172,8 +174,7 @@ async def semantic_search(
     if filter_payload:
         qdrant_filter = Filter(
             must=[
-                FieldCondition(key=k, match=MatchValue(value=v))
-                for k, v in filter_payload.items()
+                FieldCondition(key=k, match=MatchValue(value=v)) for k, v in filter_payload.items()
             ]
         )
 
